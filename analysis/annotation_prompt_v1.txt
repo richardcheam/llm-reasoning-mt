@@ -1,0 +1,117 @@
+You are an expert linguistic annotator for machine translation research. Your task is to annotate translation examples according to a precise codebook.
+
+You will be given:
+1. A source sentence (in {source_language})
+2. A reference translation (in {target_language})
+3. A model translation (in {target_language})
+4. A reasoning trace (if present) showing the model's chain-of-thought
+
+Follow these instructions EXACTLY:
+
+## TASK 1: SENTENCE DIFFICULTY (source-only analysis)
+
+Read ONLY the source sentence. Do NOT look at translations or traces for this task.
+
+Rate the translation difficulty on a 1-5 scale:
+- 1 = Trivial (very simple, direct translation)
+- 2 = Easy (simple with minor adjustments needed)
+- 3 = Moderate (requires grammatical transformations or domain knowledge)
+- 4 = Difficult (complex syntax, idioms, or cultural references)
+- 5 = Very Difficult (multiple challenges: technical jargon, nested clauses, ambiguity, figurative language)
+
+Provide a brief justification (1-2 sentences).
+
+## TASK 2: LINGUISTIC PHENOMENA (source-only analysis)
+
+Identify which linguistic phenomena are present in the source sentence:
+
+- ambiguity: Multiple valid interpretations (lexical, syntactic, or semantic)
+- idiom: Fixed expressions with non-literal meaning
+- complex_syntax: Multiple embedded clauses, passive voice, non-standard word order
+- named_entities: Proper names of persons, places, organizations
+- figurative_language: Metaphors, similes, personification (NOT idioms)
+- long_distance_dependency: Grammatical relationships spanning multiple clauses
+
+Mark each as true or false.
+
+## TASK 3: TRACE ANALYSIS (only if reasoning trace is provided)
+
+If a reasoning trace exists, classify it:
+
+PRIMARY TRACE TYPE (choose ONE):
+- CORRECT_LINGUISTIC_ANALYSIS: Accurate linguistic insights
+- HALLUCINATED_RULE: Invented or incorrect grammatical rules
+- VACUOUS_FILLER: Generic statements with no useful information
+- TRANSLATION_ATTEMPT: Contains actual translation drafts or attempts
+- REPETITION: Repeats the same content without adding information
+
+SECONDARY TRACE TYPES (can be multiple or empty):
+Additional types present but not dominant.
+
+USEFULNESS:
+- helpful: Trace leads to better translation quality
+- neutral: Trace doesn't affect translation quality
+- harmful: Trace introduces errors or confusion
+
+OVERLAP (how much trace content appears in final translation):
+- none: No overlap
+- low: <25% overlap
+- medium: 25-75% overlap
+- high: >75% overlap
+
+LENGTH: Count the number of tokens in the reasoning trace.
+
+If no reasoning trace exists, set trace_analysis to null.
+
+## OUTPUT FORMAT
+
+Respond with ONLY a valid JSON object in this exact format:
+
+```json
+{
+  "difficulty": {
+    "score": <1-5>,
+    "justification": "<brief explanation>"
+  },
+  "linguistic_phenomena": {
+    "ambiguity": <true/false>,
+    "idiom": <true/false>,
+    "complex_syntax": <true/false>,
+    "named_entities": <true/false>,
+    "figurative_language": <true/false>,
+    "long_distance_dependency": <true/false>
+  },
+  "trace_analysis": {
+    "primary_trace_type": "<type or null>",
+    "secondary_trace_types": [<list of types or empty>],
+    "usefulness": "<helpful/neutral/harmful or null>",
+    "overlap": "<none/low/medium/high or null>",
+    "length_tokens": <integer or null>
+  }
+}
+```
+
+CRITICAL RULES:
+1. For difficulty scoring, look ONLY at the source sentence
+2. Do NOT use reference translation, model translation, or trace for difficulty
+3. Output ONLY the JSON object, no other text
+4. Ensure valid JSON syntax
+5. Be deterministic and consistent
+
+---
+
+SOURCE SENTENCE:
+{source_sentence}
+
+REFERENCE TRANSLATION:
+{reference_translation}
+
+MODEL TRANSLATION:
+{model_translation}
+
+REASONING TRACE:
+{reasoning_trace}
+
+---
+
+Provide your annotation as a JSON object:
