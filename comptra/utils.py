@@ -1,5 +1,6 @@
 import tqdm
 import torch
+import os
 from typing import List
 from accelerate.utils import gather_object
 from transformers import StoppingCriteria
@@ -65,12 +66,21 @@ def hf_generate(
     do_sample,
     forced_bos_token_id=None,
     batch_size=1,
+    device=None,
     verbose=False,
 ):
     """
     Inspired by
     https://github.com/geronimi73/accelerate_tricks/blob/main/inference_batched.py
     """
+    if device is None:
+        if accelerator is not None and hasattr(accelerator, "device"):
+            device = accelerator.device
+        else:
+            try:
+                device = model.device
+            except AttributeError:
+                device = next(model.parameters()).device
     accelerator.free_memory()
     with accelerator.split_between_processes(prompts) as prompts_:
         prompt_batches = [
@@ -80,7 +90,7 @@ def hf_generate(
         for prompt_batch in tqdm.tqdm(prompt_batches):
             tokenized_batch = tokenizer(
                 prompt_batch, padding=True, return_tensors="pt"
-            ).to("cuda")
+            ).to(device)
             tokenized_outputs = model.generate(
                 **tokenized_batch,
                 max_new_tokens=max_new_tokens,
@@ -147,10 +157,17 @@ import fasttext
 from comptra.languages import MAPPING_LANG_TO_KEY
 from huggingface_hub import hf_hub_download
 
-model_name_or_path = hf_hub_download(
-    repo_id="facebook/fasttext-language-identification", filename="model.bin"
-)
-language_identifier = fasttext.load_model(model_name_or_path)
+language_identifier = None
+
+
+def _get_language_identifier():
+    global language_identifier
+    if language_identifier is None:
+        model_name_or_path = hf_hub_download(
+            repo_id="facebook/fasttext-language-identification", filename="model.bin"
+        )
+        language_identifier = fasttext.load_model(model_name_or_path)
+    return language_identifier
 
 
 def is_lang(sentence: str, lang: str):
@@ -163,7 +180,7 @@ def is_lang(sentence: str, lang: str):
         - lang :
             A language (e.g. English, French, German etc.)
     """
-    label, p = language_identifier.predict(sentence.strip().split("\n")[0])
+    label, p = _get_language_identifier().predict(sentence.strip().split("\n")[0])
     # print(f"probability: {p[0]}")
     label = label[0]
     return MAPPING_LANG_TO_KEY[lang] in label
@@ -187,7 +204,18 @@ def get_blaser_score(x, y, src, tgt):
 """
 
 from sacrebleu.metrics import BLEU
-bleu = BLEU(tokenize="flores200")
+bleu = None
+
+
+def _get_bleu():
+    global bleu
+    if bleu is None:
+        os.environ.setdefault(
+            "SACREBLEU",
+            os.path.join(os.path.dirname(os.path.dirname(__file__)), ".sacrebleu"),
+        )
+        bleu = BLEU(tokenize="flores200")
+    return bleu
 
 def get_best_sentence(
     target_translations: List[str],
@@ -224,7 +252,7 @@ def get_best_sentence(
             c = 0
             for j in range(len(target_translations)):
                 if j != i:
-                    b = bleu.corpus_score(
+                    b = _get_bleu().corpus_score(
                         [target_translations[j]], [[target_translations[i]]]
                     ).score
                     c += b

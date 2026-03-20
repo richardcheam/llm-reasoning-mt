@@ -246,6 +246,7 @@ def apply_chat_template(model_name_or_path: str):
 
         return f
     elif model_name_or_path in [
+        "google/gemma-3-270m-it",
         "google/gemma-2-2b-it",
         "google/gemma-2-9b-it",
         "google/gemma-2-27b-it",

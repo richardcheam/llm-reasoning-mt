@@ -420,7 +420,35 @@ class Sampler:
         do_sample: bool = False,
         request_batch_size: int = 8,
         verbose: bool = True,
+        return_trace: bool = False,
+        debug_raw_outputs: bool = False,
     ):
+        def package_outputs(
+            translations,
+            traces=None,
+            raw_outputs=None,
+            cleaned_outputs=None,
+            prompts=None,
+        ):
+            if not return_trace and not debug_raw_outputs:
+                return translations
+            if traces is None:
+                traces = [None] * len(translations)
+            return [
+                {
+                    "translation": translations[i],
+                    "reasoning_trace": traces[i],
+                    "raw_outputs": (
+                        raw_outputs[i] if raw_outputs is not None else None
+                    ),
+                    "cleaned_outputs": (
+                        cleaned_outputs[i] if cleaned_outputs is not None else None
+                    ),
+                    "prompt": prompts[i] if prompts is not None else None,
+                }
+                for i in range(len(translations))
+            ]
+
         if self.method_translate == "nllb":
             outputs = self.from_source_to_target(
                 prompts=sentences,
@@ -444,7 +472,7 @@ class Sampler:
                 )
                 for i in range(0, len(outputs), num_return_sequences)
             ]
-            return outputs
+            return package_outputs(outputs)
         elif self.method_translate == "vanilla":
             prompts = [
                 get_translate_prompt(
@@ -463,9 +491,9 @@ class Sampler:
             ]
             prompts = [self.apply_chat_template(prompt) for prompt in prompts]
             print(f"===\n{prompts[0]}\n===")
-            outputs = self.generate(
+            raw_outputs = self.generate(
                 prompts=prompts,
-                max_new_tokens=max(500, max_new_tokens),
+                max_new_tokens=max_new_tokens,
                 temperature=temperature,
                 top_p=top_p,
                 repetition_penalty=repetition_penalty,
@@ -476,38 +504,47 @@ class Sampler:
                 verbose=verbose,
             )
             final_outputs = []
-            for i, output in enumerate(outputs):
-                if "</think>" in output[0] and "<think>" in output[0]:
-                    output = [
+            cleaned_outputs = []
+            for i, output in enumerate(raw_outputs):
+                processed_output = list(output)
+                if "</think>" in processed_output[0] and "<think>" in processed_output[0]:
+                    processed_output = [
                         element[element.index("</think>") + len("</think>") :].strip()
-                        for element in output
+                        for element in processed_output
                     ]
                 trigger = "Final Translation\n"
-                output = [
+                processed_output = [
                     (
                         element[element.find(trigger) + len(trigger) :].strip()
                         if trigger in element
                         else element
                     )
-                    for element in output
+                    for element in processed_output
                 ]
+                cleaned_candidates = [
+                    remove_repeating_bigram(
+                        _stop_at_stop_token(processed_output[j], STOP_WORDS)
+                        .strip()
+                        .split("\n")[0]
+                    )
+                    for j in range(len(processed_output))
+                ]
+                cleaned_outputs.append(cleaned_candidates)
                 final_outputs.append(
                     get_best_sentence(
-                        target_translations=[
-                            remove_repeating_bigram(
-                                _stop_at_stop_token(output[j], STOP_WORDS)
-                                .strip()
-                                .split("\n")[0]
-                            )
-                            for j in range(len(output))
-                        ],
+                        target_translations=cleaned_candidates,
                         src=self.src,
                         tgt=self.tgt,
                         source_sentence=sentences[i],
                         strategy=self.selection_method,
                     )
                 )
-            return final_outputs
+            return package_outputs(
+                final_outputs,
+                raw_outputs=raw_outputs if debug_raw_outputs else None,
+                cleaned_outputs=cleaned_outputs if debug_raw_outputs else None,
+                prompts=prompts if debug_raw_outputs else None,
+            )
         elif self.method_translate == "cot":
             prompts = [
                 get_cot_prompt(
@@ -533,6 +570,7 @@ class Sampler:
                 do_sample=do_sample,
                 request_batch_size=request_batch_size,
                 verbose=verbose,
+                return_trace=return_trace,
             )
             return outputs
         elif self.method_translate == "maps":
@@ -548,7 +586,7 @@ class Sampler:
                 request_batch_size=request_batch_size,
                 verbose=verbose,
             )
-            return outputs
+            return package_outputs(outputs)
         elif self.method_translate == "step_by_step":
             outputs = self.step_by_step(
                 sentences=sentences,
@@ -562,7 +600,7 @@ class Sampler:
                 request_batch_size=request_batch_size,
                 verbose=verbose,
             )
-            return outputs
+            return package_outputs(outputs)
         elif self.method_translate == "TEaR":
             outputs = self.tear(
                 sentences=sentences,
@@ -577,7 +615,7 @@ class Sampler:
                 request_batch_size=request_batch_size,
                 verbose=verbose,
             )
-            return outputs
+            return package_outputs(outputs)
         elif self.method_translate in ["pos", "morph", "dep", "ner", "none"]:
             prompts = [
                 get_linguistic_prompt(
@@ -622,7 +660,7 @@ class Sampler:
                         strategy=self.selection_method,
                     )
                 )
-            return final_outputs
+            return package_outputs(final_outputs)
         else:
             pass
 
@@ -892,6 +930,7 @@ class Sampler:
         do_sample: bool = False,
         request_batch_size: int = 8,
         verbose: bool = True,
+        return_trace: bool = False,
     ):
         prompts = [self.apply_chat_template(prompt) for prompt in prompts]
         outputs = []
@@ -956,16 +995,33 @@ class Sampler:
         ]
         final_outputs = [remove_repeating_bigram(output) for output in final_outputs]
         outputs_list = []
+        traces_list = []
 
         for i in range(0, len(final_outputs), num_return_sequences):
-            outputs_list.append(
-                get_best_sentence(
-                    target_translations=final_outputs[i : i + num_return_sequences],
-                    source_sentence=sentences[i // num_return_sequences],
-                    src=self.src,
-                    tgt=self.tgt,
-                )
+            candidate_translations = final_outputs[i : i + num_return_sequences]
+            candidate_traces = outputs[i // num_return_sequences]
+            selected_output = get_best_sentence(
+                target_translations=candidate_translations,
+                source_sentence=sentences[i // num_return_sequences],
+                src=self.src,
+                tgt=self.tgt,
             )
+            outputs_list.append(selected_output)
+            if return_trace:
+                try:
+                    selected_idx = candidate_translations.index(selected_output)
+                except ValueError:
+                    selected_idx = 0
+                traces_list.append(candidate_traces[selected_idx].strip())
+
+        if return_trace:
+            return [
+                {
+                    "translation": outputs_list[i],
+                    "reasoning_trace": traces_list[i],
+                }
+                for i in range(len(outputs_list))
+            ]
         return outputs_list
 
     def maps(
@@ -1481,6 +1537,7 @@ class cohereSampler(Sampler):
 
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+import importlib.util
 
 
 class HFSampler(Sampler):
@@ -1501,18 +1558,45 @@ class HFSampler(Sampler):
             else self.tokenizer.pad_token
         )
         self.accelerator = Accelerator()
+        self.device = self._get_device()
+        model_kwargs = {
+            "trust_remote_code": True,
+            "attn_implementation": self._get_attn_implementation(),
+        }
+
+        if self.device.type == "cuda":
+            model_kwargs["device_map"] = {"": self.accelerator.process_index}
+            model_kwargs["torch_dtype"] = (
+                torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+            )
+        elif self.device.type == "mps":
+            model_kwargs["torch_dtype"] = torch.float16
+        else:
+            model_kwargs["torch_dtype"] = torch.float32
+
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name_or_path,
-            device_map={"": self.accelerator.process_index},
-            torch_dtype=torch.bfloat16,
-            # load_in_8bit=True,
-            trust_remote_code=True,
-            attn_implementation=(
-                "eager"
-                if "gemma-2-" in self.model_name_or_path
-                else "flash_attention_2"
-            ),
+            **model_kwargs,
         )
+        if self.device.type != "cuda":
+            self.model.to(self.device)
+        self.model.eval()
+
+    def _get_device(self):
+        if torch.cuda.is_available():
+            return torch.device(f"cuda:{self.accelerator.process_index}")
+        if torch.backends.mps.is_available():
+            return torch.device("mps")
+        return torch.device("cpu")
+
+    def _get_attn_implementation(self):
+        if self.device.type != "cuda":
+            return "eager"
+        if "gemma-2-" in self.model_name_or_path:
+            return "eager"
+        if importlib.util.find_spec("flash_attn") is not None:
+            return "flash_attention_2"
+        return "sdpa"
 
     def generate(
         self,
@@ -1554,6 +1638,7 @@ class HFSampler(Sampler):
             do_sample=do_sample,
             forced_bos_token_id=None,
             batch_size=request_batch_size,
+            device=self.device,
         )
         outputs = []
         for i, r in enumerate(response):
@@ -1742,12 +1827,16 @@ try:
     import sys
     # from vllm.sampling_params import BeamSearchParams
     from vllm import LLM, SamplingParams
-except:
-    from vllm import LLM, SamplingParams
+    from vllm.lora.request import LoRARequest
+    _VLLM_IMPORT_ERROR = None
+except ImportError as error:
+    LLM = None
+    SamplingParams = None
+    LoRARequest = None
+    _VLLM_IMPORT_ERROR = error
 # print(f"vLLM={vllm.__version__}")
 # """
 # from vllm import LLM, SamplingParams
-from vllm.lora.request import LoRARequest
 
 
 class vLLMSampler(Sampler):
@@ -1755,6 +1844,12 @@ class vLLMSampler(Sampler):
         self, enable_lora=False, lora_path=None, max_lora_rank=16, *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
+        if LLM is None or SamplingParams is None:
+            raise ImportError(
+                "vLLM is required when inference_api='vllm'. "
+                "Install vllm in this environment or switch to inference_api='hf', "
+                "'openai', 'anthropic', or 'cohere'."
+            ) from _VLLM_IMPORT_ERROR
         print(f"CUDA_VISIBLE_DEVICES: {os.environ.get('CUDA_VISIBLE_DEVICES', 'None')}")
         try:
             self.sampling_params = SamplingParams(

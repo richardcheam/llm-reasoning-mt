@@ -1,0 +1,31 @@
+# Practical environment for this repo on a local machine.
+# Covers analysis, evaluation, and most training paths.
+# This intentionally excludes heavyweight / platform-specific packages such as vLLM, SONAR, flash-attn, and liger-kernel.
+
+accelerate
+anthropic
+bm25s
+cohere
+datasets<4
+fasttext-wheel
+huggingface_hub
+multiprocess
+nltk
+numpy
+openai
+peft
+PyStemmer
+rank-bm25
+sacrebleu
+scikit-learn
+scipy
+sentence-splitter
+sentencepiece
+spacy
+termcolor
+torch
+tqdm
+transformers
+trl
+unbabel-comet
+wandb

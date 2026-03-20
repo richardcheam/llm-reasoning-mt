@@ -168,6 +168,11 @@ def parse_args():
         help="Name or path of the base model associated to the LoRA module used for text generation.",
     )
     parser.add_argument(
+        "--debug_raw_outputs",
+        action="store_true",
+        help="Save raw generation artifacts such as prompts and candidate outputs to the JSONL rows.",
+    )
+    parser.add_argument(
         "--lora_rank", type=int, default=16, help="The lora rank parameter."
     )
     parser.add_argument(
@@ -176,6 +181,68 @@ def parse_args():
         help="Whether the model_name_or_path is a LoRA fine-tuning. In this case you have to specify --base_model_name_or_path.",
     )
     return parser.parse_args()
+
+
+def _get_prompt_type(args):
+    shot_count = args.k if args.k is not None else 0
+    prefix = "few_shot" if shot_count > 0 else "zero_shot"
+    method = args.method_translate if args.method_translate else "unknown"
+    if method == "vanilla":
+        suffix = "direct"
+    else:
+        suffix = method
+    return f"{prefix}_{suffix}"
+
+
+def _build_run_metadata(args, metadata_dir):
+    return {
+        "model_name": args.model_name_or_path,
+        "tokenizer_name_or_path": args.tokenizer_name_or_path,
+        "language_pair": f"{args.src}-{args.tgt}",
+        "source_language": args.src,
+        "target_language": args.tgt,
+        "prompt_type": _get_prompt_type(args),
+        "number_of_shots": args.k if args.k is not None else 0,
+        "decoding_temperature": args.temperature,
+        "top_p": args.top_p,
+        "repetition_penalty": args.repetition_penalty,
+        "num_return_sequences": args.num_return_sequences,
+        "num_beams": args.num_beams,
+        "template_key": args.template_key,
+        "dataset_name_or_path": args.dataset_name_or_path,
+        "inference_api": args.inference_api,
+        "selection_method": args.selection_method,
+        "method_translate": args.method_translate,
+        "method_divide": args.method_divide,
+        "mode_divide": args.mode_divide,
+        "merge_prompt": args.merge_prompt,
+        "steps": args.steps,
+        "number_of_subproblems": args.number_of_subproblems,
+        "number_of_refining_steps": args.number_of_refining_steps,
+        "refine_after_merge": args.refine_after_merge,
+        "retriever_type": args.retriever_type,
+        "metadata_dir": metadata_dir,
+        "seed": args.seed,
+        "debug_raw_outputs": args.debug_raw_outputs,
+    }
+
+
+def _normalize_output_record(output):
+    if isinstance(output, dict):
+        return {
+            "translation": output.get("translation", "").strip(),
+            "reasoning_trace": output.get("reasoning_trace"),
+            "raw_outputs": output.get("raw_outputs"),
+            "cleaned_outputs": output.get("cleaned_outputs"),
+            "prompt": output.get("prompt"),
+        }
+    return {
+        "translation": str(output).strip(),
+        "reasoning_trace": None,
+        "raw_outputs": None,
+        "cleaned_outputs": None,
+        "prompt": None,
+    }
 
 
 def main(args):
@@ -340,7 +407,11 @@ def main(args):
     ) -> List[str]:
         generation_kwargs["max_new_tokens"] = args.max_new_tokens
         return sampler.translate(
-            sentences=sentences, demonstrations=demonstrations, **generation_kwargs
+            sentences=sentences,
+            demonstrations=demonstrations,
+            return_trace=True,
+            debug_raw_outputs=args.debug_raw_outputs,
+            **generation_kwargs,
         )
 
     # Get the merge function
@@ -391,6 +462,9 @@ def main(args):
 
     metadata_dir = os.path.join(output_dir, metadata_dir)
     os.makedirs(metadata_dir, exist_ok=True)
+    run_metadata = _build_run_metadata(args, metadata_dir)
+    with open(os.path.join(metadata_dir, "run_metadata.json"), "w") as fout:
+        json.dump(run_metadata, fout, ensure_ascii=False, indent=2)
 
     if args.k is not None and args.k > 0:
         print(f"Translation with {args.k} demonstrations!")
@@ -433,10 +507,14 @@ def main(args):
         print(f"Merge with {args.number_of_merge_demonstrations} demonstrations!")
 
     # Get the sentences to translate
-    source_sentences = [
-        example["sentence"]
-        for i, example in enumerate(dataset_src["devtest"])
-        if args.max_samples is not None and i < args.max_samples
+    selected_indices = [
+        i
+        for i, _ in enumerate(dataset_src["devtest"])
+        if args.max_samples is None or i < args.max_samples
+    ]
+    source_sentences = [dataset_src["devtest"][i]["sentence"] for i in selected_indices]
+    reference_sentences = [
+        dataset_tgt["devtest"][i]["sentence"] for i in selected_indices
     ]
     print(f"There are {len(source_sentences)} samples!")
     # source sentences, sentences for round 1, ..., sentences for round N
@@ -558,12 +636,20 @@ def main(args):
                 # Refining
                 if args.number_of_refining_steps:
                     print("Refining after translate.")
+                    output_records = [_normalize_output_record(output) for output in outputs]
                     outputs = refine_fn(
                         inputs,
-                        outputs,
+                        [record["translation"] for record in output_records],
                         max_tokens=max(1500, args.max_new_tokens),
                         number_of_refining_steps=args.number_of_refining_steps,
                     )
+                    outputs = [
+                        {
+                            "translation": outputs[idx],
+                            "reasoning_trace": output_records[idx]["reasoning_trace"],
+                        }
+                        for idx in range(len(outputs))
+                    ]
                 # Save the predictions to an output file
                 with open(
                     os.path.join(metadata_dir, f"translate_{step}.jsonl"),
@@ -571,12 +657,35 @@ def main(args):
                     encoding="utf-8",
                 ) as fout:
                     for j, output in enumerate(outputs):
-                        current_translations.append(output.strip())
+                        output_record = _normalize_output_record(output)
+                        translation = output_record["translation"]
+                        sentence_index = i + j
+                        dataset_index = (
+                            selected_indices[sentence_index] if step == 0 else None
+                        )
+                        reference_translation = (
+                            reference_sentences[sentence_index] if step == 0 else None
+                        )
+                        current_translations.append(translation)
                         fout.write(
                             json.dumps(
                                 {
                                     "sentence": sentences[i + j],
-                                    "translation": output.strip(),
+                                    "source_sentence": sentences[i + j],
+                                    "translation": translation,
+                                    "model_translation": translation,
+                                    "reference_translation": reference_translation,
+                                    "reasoning_trace": output_record["reasoning_trace"],
+                                    "raw_outputs": output_record["raw_outputs"],
+                                    "cleaned_outputs": output_record["cleaned_outputs"],
+                                    "prompt": output_record["prompt"],
+                                    "sentence_index": sentence_index,
+                                    "dataset_index": dataset_index,
+                                    "step": step,
+                                    "example_id": (
+                                        f"{args.dataset_name_or_path}:{args.src}:{args.tgt}:{step}:{sentence_index}"
+                                    ),
+                                    "metadata": run_metadata,
                                 }
                             )
                             + "\n"
@@ -638,12 +747,35 @@ def main(args):
                     encoding="utf-8",
                 ) as fout:
                     for j, output in enumerate(outputs_list):
-                        current_translations.append(output)
+                        output_record = _normalize_output_record(output)
+                        translation = output_record["translation"]
+                        sentence_index = i + j
+                        dataset_index = (
+                            selected_indices[sentence_index] if step == 0 else None
+                        )
+                        reference_translation = (
+                            reference_sentences[sentence_index] if step == 0 else None
+                        )
+                        current_translations.append(translation)
                         fout.write(
                             json.dumps(
                                 {
                                     "sentence": sentences_batch[j],
-                                    "translation": output.strip(),
+                                    "source_sentence": sentences_batch[j],
+                                    "translation": translation,
+                                    "model_translation": translation,
+                                    "reference_translation": reference_translation,
+                                    "reasoning_trace": output_record["reasoning_trace"],
+                                    "raw_outputs": output_record["raw_outputs"],
+                                    "cleaned_outputs": output_record["cleaned_outputs"],
+                                    "prompt": output_record["prompt"],
+                                    "sentence_index": sentence_index,
+                                    "dataset_index": dataset_index,
+                                    "step": step,
+                                    "example_id": (
+                                        f"{args.dataset_name_or_path}:{args.src}:{args.tgt}:{step}:{sentence_index}"
+                                    ),
+                                    "metadata": run_metadata,
                                 }
                             )
                             + "\n"

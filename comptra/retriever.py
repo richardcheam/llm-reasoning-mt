@@ -1,4 +1,9 @@
-from sonar.inference_pipelines.text import TextToEmbeddingModelPipeline
+try:
+    from sonar.inference_pipelines.text import TextToEmbeddingModelPipeline
+    _SONAR_IMPORT_ERROR = None
+except ImportError as error:
+    TextToEmbeddingModelPipeline = None
+    _SONAR_IMPORT_ERROR = error
 from sklearn.metrics import pairwise_distances
 from rank_bm25 import BM25Okapi
 import numpy as np
@@ -12,9 +17,18 @@ from math import ceil
 import spacy
 nlp = spacy.load("en_core_web_sm")
 
-from grakel import Graph
+try:
+    from grakel import Graph
+    _GRAKEL_IMPORT_ERROR = None
+except ImportError as error:
+    Graph = None
+    _GRAKEL_IMPORT_ERROR = error
 
 def build_graph(doc, verbose=False) :
+    if Graph is None:
+        raise ImportError(
+            "grakel is required for graph-based retrieval."
+        ) from _GRAKEL_IMPORT_ERROR
     node_labels = {token.i : token.pos_ for token in doc}
     edges = {}
     edge_labels = {}
@@ -113,6 +127,10 @@ class Retriever:
         self.retriever_type = retriever_type
         
         if retriever_type == "SONAR":
+            if TextToEmbeddingModelPipeline is None:
+                raise ImportError(
+                    "SONAR retrieval requires the `sonar` package."
+                ) from _SONAR_IMPORT_ERROR
             try:
                 self.embedder = TextToEmbeddingModelPipeline(
                     encoder="text_sonar_basic_encoder", tokenizer="text_sonar_basic_encoder"
@@ -158,6 +176,10 @@ class Retriever:
             self.tokenized_corpus = [example["sentence"].split(" ") for example in self.ds_src["dev"]]
         
         elif "grakel" in retriever_type.lower():
+            if Graph is None:
+                raise ImportError(
+                    "grakel retrieval requires the `grakel` package."
+                ) from _GRAKEL_IMPORT_ERROR
             from grakel.kernels import VertexHistogram, EdgeHistogram
             self.vertex_kernel = VertexHistogram(n_jobs=-1)
             self.edge_kernel = EdgeHistogram(n_jobs=-1)

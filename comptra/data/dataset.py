@@ -2,6 +2,14 @@ from datasets import load_dataset
 from comptra.languages import *
 
 
+def _load_flores(language_key: str):
+    return load_dataset(
+        "facebook/flores",
+        language_key,
+        trust_remote_code=True,
+    )
+
+
 def get_datasets(dataset_name_or_path: str, language: str):
     """
     Get a dataset given its description and the language of interest
@@ -31,7 +39,7 @@ def get_datasets(dataset_name_or_path: str, language: str):
 
             dataset = get_extension_datasets(MAPPING_LANG_TO_KEY[language])
         else:
-            dataset = load_dataset("facebook/flores", MAPPING_LANG_TO_KEY[language])
+            dataset = _load_flores(MAPPING_LANG_TO_KEY[language])
     elif dataset_name_or_path == "ntrex":
         from comptra.data.ntrex import get_datasets as ntrex
 
@@ -55,9 +63,7 @@ def get_datasets(dataset_name_or_path: str, language: str):
 
             flores_dataset = get_extension_datasets(MAPPING_LANG_TO_KEY[language])
         else:
-            flores_dataset = load_dataset(
-                "facebook/flores", MAPPING_LANG_TO_KEY[language]
-            )
+            flores_dataset = _load_flores(MAPPING_LANG_TO_KEY[language])
         # TICO-19
         if language == "English":
             # dataset, _ = tico("English", "Hausa")
@@ -72,7 +78,7 @@ def get_datasets(dataset_name_or_path: str, language: str):
 
             dataset = get_extension_datasets(MAPPING_LANG_TO_KEY[language])
         else:
-            dataset = load_dataset("facebook/flores", MAPPING_LANG_TO_KEY[language])
+            dataset = _load_flores(MAPPING_LANG_TO_KEY[language])
         from datasets import DatasetDict, Dataset
 
         return DatasetDict(
@@ -87,9 +93,9 @@ def get_datasets(dataset_name_or_path: str, language: str):
         from train_datasets import get
         from datasets import Dataset
 
-        dataset = load_dataset("facebook/flores", MAPPING_LANG_TO_KEY[language])
+        dataset = _load_flores(MAPPING_LANG_TO_KEY[language])
         A = load_dataset("almanach/topxgen-gemma-3-27b-and-nllb-3.3b", split=language)
-        dataset_src = load_dataset("facebook/flores", "eng_Latn")
+        dataset_src = _load_flores("eng_Latn")
         dataset_src["devtest"] = dataset_src["devtest"].remove_columns(
             ["id", "URL", "domain", "topic", "has_image", "has_hyperlink"]
         )
@@ -109,7 +115,7 @@ def get_datasets(dataset_name_or_path: str, language: str):
             devtest = load_dataset(
                 "google/wmt24pp", f"en-{CODE_BY_LANGUAGE[language]}"
             )
-        dev = load_dataset("facebook/flores", MAPPING_LANG_TO_KEY[language])["dev"]
+        dev = _load_flores(MAPPING_LANG_TO_KEY[language])["dev"]
         dataset = DatasetDict(
             {
                 "devtest": Dataset.from_dict(

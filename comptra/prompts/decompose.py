@@ -543,26 +543,44 @@ def characterwise_split(x, n_splits, char=" ") -> List[str]:
 import nltk
 import signal
 
+stop_words = set()
+_NLTK_READY = False
+
 class TimeoutException(Exception):
     pass
 
 def handler(signum, frame):
     raise TimeoutException("Download took too long!")
 
-# Set the signal handler and timeout (e.g., 10 seconds)
-signal.signal(signal.SIGALRM, handler)
-signal.alarm(10)  # Timeout after 10 seconds
+def _ensure_nltk_resources():
+    global _NLTK_READY, stop_words
+    if _NLTK_READY:
+        return
 
-try:
-    nltk.download("punkt")
-    nltk.download("punkt_tab")
-    nltk.download("stopwords")
-    from nltk.corpus import stopwords
-    signal.alarm(0)  # Cancel alarm if successful
-    stop_words = set(stopwords.words("english"))
-except TimeoutException:
-    print("Download timed out!")
-    stop_words = []
+    signal.signal(signal.SIGALRM, handler)
+    signal.alarm(10)
+
+    try:
+        for package, path in [
+            ("punkt", "tokenizers/punkt"),
+            ("punkt_tab", "tokenizers/punkt_tab"),
+            ("stopwords", "corpora/stopwords"),
+        ]:
+            try:
+                nltk.data.find(path)
+            except LookupError:
+                nltk.download(package, quiet=True)
+        from nltk.corpus import stopwords
+
+        stop_words = set(stopwords.words("english"))
+    except TimeoutException:
+        print("NLTK resource download timed out; falling back to basic tokenization.")
+        stop_words = set()
+    except LookupError:
+        stop_words = set()
+    finally:
+        signal.alarm(0)
+        _NLTK_READY = True
 import string
 
 
@@ -575,7 +593,11 @@ def keyword_splitting(x: str, n_splits: int = -1) -> List[str]:
     - n_splits: int
         Number of keyword to extract from the sentence
     """
-    words = nltk.word_tokenize(x)
+    _ensure_nltk_resources()
+    try:
+        words = nltk.word_tokenize(x)
+    except LookupError:
+        words = x.split()
     words = [w for w in words if w not in stop_words and w not in string.punctuation]
     dedup_words = []
     for w in words:

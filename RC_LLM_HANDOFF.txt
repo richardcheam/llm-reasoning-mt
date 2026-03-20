@@ -1,0 +1,330 @@
+Project Brief for Another LLM
+For: Richard Cheam [RC]
+Repo: llm-reasoning-mt
+
+1. Project Goal
+
+This project studies why chain-of-thought or reasoning traces help mathematics and coding, but do not seem to help machine translation.
+
+The core research question from the planning document is:
+Why does reasoning or CoT help for mathematics and coding, but not for machine translation?
+
+The project is based on the paper "LLM Reasoning for Machine Translation: Synthetic Data Generation over Thinking Tokens".
+
+The repo supports:
+- generating reasoning-augmented MT data
+- evaluating direct MT and CoT-style MT
+- training models with or without reasoning traces
+- exporting sentence-level data for later annotation and analysis
+
+2. Richard Cheam [RC] Responsibilities
+
+According to Group_1_2.pdf, RC owns two main parts:
+
+Phase 1:
+- tag the dataset
+- score each sentence by difficulty
+- annotate a subset for linguistic phenomena:
+  - ambiguity
+  - idioms
+  - complex syntax
+  - named entities
+
+Phase 2:
+- perform trace analysis
+- categorize traces into types:
+  - correct linguistic analysis
+  - hallucinated rules
+  - vacuous filler
+  - actual translation attempts
+  - repetition
+- measure overlap between traces and final translations
+- analyze trace length vs translation quality
+- cross-tabulate with:
+  - model
+  - language pair
+  - prompt type
+  - number of shots
+
+This means RC is responsible for the annotation and descriptive analysis layer, not the faithfulness perturbation experiments or the later hypothesis-testing experiments.
+
+3. Important Constraints from Supervisor Feedback
+
+The supervisor raised a contamination concern.
+
+Operational rules:
+- do not generate reasoning traces on held-out test sets such as FLORES devtest if those sets are meant for evaluation
+- if an LLM is used for difficulty tagging, pass only the source sentence
+- do not give the LLM:
+  - reference translation
+  - model translation
+  - reasoning trace
+- keep the tagging prompt fixed across batches
+- keep the tagging settings fixed across batches
+- add a small manual audit sample for consistency
+
+Safe interpretation:
+- sentence difficulty tagging should be source-only
+- trace analysis should be performed only on traces already collected from allowed non-test settings, or on evaluation outputs that are explicitly part of the analysis design and not reused for model selection or prompt tuning
+
+4. Current Repo State
+
+The repo has already been extended to support Phase 2 analysis.
+
+Implemented already:
+- evaluation outputs now save richer JSONL rows with:
+  - source sentence
+  - reference translation
+  - model translation
+  - optional reasoning trace
+  - metadata
+- Phase 2 helper scripts exist for:
+  - exporting sentence-level metrics
+  - building a merged analysis dataset
+- environment setup uses uv
+- a local .env can provide HF tokens
+- a small-model few-shot FLORES evaluation script exists
+- a Gemma 270M debug script exists
+
+Main files for RC:
+- analysis/PHASE2_SETUP.md
+- analysis/phase2_utils.py
+- analysis/export_sentence_metrics.py
+- analysis/build_phase2_dataset.py
+- evaluation.py
+- comptra/sampler.py
+- FEWSHOT_FLORES_GEMMA_NOTE.md
+- scripts/eval_fewshot_flores_small_gemma.sh
+- scripts/debug_gemma_270m_fewshot.sh
+
+5. What the Output Files Mean
+
+For evaluation runs, the important file is usually:
+- translate_0.jsonl
+
+Each row may contain:
+- source_sentence
+- reference_translation
+- model_translation
+- reasoning_trace
+- metadata
+
+The metadata contains:
+- model_name
+- language_pair
+- prompt_type
+- number_of_shots
+- decoding_temperature
+- and related run settings
+
+There is also:
+- run_metadata.json
+
+That file describes the configuration of the whole run.
+
+6. Annotation Schema RC Should Use
+
+The annotation scheme that has already been stabilized in discussion is:
+
+difficulty_score:
+- 1 trivial
+- 2 easy
+- 3 moderate
+- 4 difficult
+- 5 very difficult
+
+Difficulty is based only on the source sentence.
+
+Linguistic phenomena:
+- ambiguity
+- idiom
+- complex_syntax
+- named_entities
+- figurative_language
+- long_distance_dependency
+
+Trace type labels:
+- CORRECT_LINGUISTIC_ANALYSIS
+- HALLUCINATED_RULE
+- VACUOUS_FILLER
+- TRANSLATION_ATTEMPT
+- REPETITION
+
+Trace metrics:
+- trace_length_estimate
+- trace_translation_overlap
+- trace_usefulness
+
+Expected qualitative output per example:
+- a structured JSON object with deterministic fields
+
+7. RC Workflow Recommendation
+
+Step 1:
+Build or collect a clean analysis table with one row per example.
+
+Minimum columns:
+- source_sentence
+- reference_translation
+- model_translation
+- reasoning_trace
+- model_name
+- language_pair
+- prompt_type
+- number_of_shots
+- decoding_temperature
+- evaluation scores if available
+
+Step 2:
+Create a deterministic annotation codebook.
+
+This should define:
+- how to assign each difficulty score
+- what counts as ambiguity
+- what counts as complex syntax
+- when a trace is vacuous filler vs correct linguistic analysis
+- how to assign overlap and usefulness consistently
+
+Step 3:
+Run a small pilot annotation pass.
+
+Recommended:
+- 50 to 100 examples
+
+Purpose:
+- refine the codebook
+- identify ambiguous edge cases
+- make future labeling more consistent
+
+Step 4:
+Annotate the full RC subset.
+
+Recommended sampling:
+- stratify by model
+- stratify by prompt type
+- stratify by language pair
+- stratify by number of shots
+- include both strong and weak translations
+- include both short and long traces
+
+Step 5:
+Produce descriptive Phase 2 analysis tables.
+
+Examples:
+- trace type by prompt type
+- trace type by model
+- trace usefulness by quality bucket
+- overlap vs translation quality
+- trace length vs translation quality
+
+8. Concrete Analyses RC Should Prioritize
+
+A. Sentence difficulty tagging
+- assign difficulty_score from source sentence only
+- write short deterministic justification
+
+B. Linguistic phenomena tagging
+- annotate a subset for:
+  - ambiguity
+  - idiom
+  - complex syntax
+  - named entities
+  - figurative language
+  - long-distance dependency
+
+C. Trace categorization
+- dominant trace type
+- all secondary trace types
+
+D. Trace usefulness analysis
+- helpful
+- neutral
+- harmful
+
+E. Trace overlap analysis
+- none
+- low
+- medium
+- high
+
+F. Descriptive correlation analysis
+- does longer trace correlate with better translation?
+- do translation attempts correlate with better quality?
+- are vacuous traces common in poor translations?
+- are correct linguistic analyses rare or common?
+
+9. Immediate Practical Next Steps
+
+If working on the GPU machine:
+
+1. Use the debug script first for small Gemma models if outputs look suspicious:
+- scripts/debug_gemma_270m_fewshot.sh
+
+2. For a normal few-shot baseline:
+- scripts/eval_fewshot_flores_small_gemma.sh
+
+3. Export sentence-level metrics after a run:
+- python analysis/export_sentence_metrics.py --run_dir RUN_DIR --metrics bleu
+
+4. Build a merged Phase 2 dataset:
+- python analysis/build_phase2_dataset.py --run_dir RUN_DIR
+
+5. Start the RC pilot annotation pass on that merged dataset.
+
+10. Known Current Issue
+
+The local CPU test of google/gemma-3-270m-it produced empty translations after post-processing in the direct few-shot MT setup.
+
+To debug that, the code now supports:
+- saving raw model outputs
+- saving cleaned candidate outputs
+- saving the exact prompt
+
+Use:
+- scripts/debug_gemma_270m_fewshot.sh
+
+This is intended to be run on the GPU machine, not on the local laptop.
+
+11. What Another LLM Should Do If Asked To Continue RC Work
+
+If another LLM continues this work, it should:
+- preserve contamination controls
+- avoid changing the annotation schema unless clearly justified
+- keep labels deterministic across batches
+- prioritize building reusable annotation tables and codebooks
+- focus on RC-owned tasks:
+  - difficulty tagging
+  - linguistic-phenomena annotation
+  - trace categorization
+  - overlap/usefulness analysis
+- not spend time on large new modeling experiments unless explicitly requested
+
+12. Suggested Deliverables for RC
+
+Minimum deliverables:
+- a written annotation codebook
+- a pilot annotated JSONL or CSV
+- a larger annotated subset
+- a summary table of trace-type frequencies
+- a summary table of trace usefulness vs translation quality
+- a summary table of difficulty / linguistic phenomena vs trace behavior
+
+Strong deliverables:
+- a reproducible annotation script or LLM-assisted tagging pipeline
+- clear contamination-safe protocol
+- error analysis examples showing:
+  - useful traces
+  - vacuous traces
+  - hallucinated-rule traces
+  - translation-attempt traces
+
+13. Short Summary
+
+Richard Cheam [RC] owns the annotation and trace-analysis part of the project.
+
+The central job is:
+- turn translation outputs and reasoning traces into a structured research dataset
+- label sentence difficulty and linguistic phenomena
+- classify traces
+- measure whether traces are useful, vacuous, or harmful
+- produce descriptive evidence for why reasoning does not reliably help machine translation
