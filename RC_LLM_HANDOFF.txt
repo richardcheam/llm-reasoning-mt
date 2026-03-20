@@ -67,6 +67,19 @@ Safe interpretation:
 - sentence difficulty tagging should be source-only
 - trace analysis should be performed only on traces already collected from allowed non-test settings, or on evaluation outputs that are explicitly part of the analysis design and not reused for model selection or prompt tuning
 
+Reproducibility interpretation:
+- if LLMs are used for annotation, the annotation setup must be frozen and documented
+- do not rely on an interactive proprietary assistant such as Claude Code or ChatGPT as the final annotation mechanism
+- instead, use a reproducible scripted pipeline with:
+  - a fixed model name
+  - a fixed model revision or checkpoint
+  - a fixed prompt template
+  - fixed decoding settings
+  - fixed codebook
+  - saved raw outputs
+  - saved parsed labels
+- if possible, prefer a Hugging Face model with a versioned checkpoint so another person can rerun the same annotation process
+
 4. Current Repo State
 
 The repo has already been extended to support Phase 2 analysis.
@@ -158,6 +171,15 @@ Trace metrics:
 Expected qualitative output per example:
 - a structured JSON object with deterministic fields
 
+Recommended naming for the method:
+- "LLM-assisted annotation" is the safest and most accurate umbrella term
+- if the model assigns labels using an explicit rubric or codebook, call it:
+  - "rubric-guided LLM annotation"
+  - or "codebook-guided LLM annotation"
+- "LLM-as-a-judge" is better reserved for cases where the model evaluates or scores an output against a criterion
+- for this project, a good formal description is:
+  - "codebook-guided LLM-assisted annotation with manual audit"
+
 7. RC Workflow Recommendation
 
 Step 1:
@@ -185,6 +207,9 @@ This should define:
 - when a trace is vacuous filler vs correct linguistic analysis
 - how to assign overlap and usefulness consistently
 
+This codebook should be treated as part of the method, not just as notes.
+It should be versioned and cited in the report.
+
 Step 3:
 Run a small pilot annotation pass.
 
@@ -206,6 +231,15 @@ Recommended sampling:
 - stratify by number of shots
 - include both strong and weak translations
 - include both short and long traces
+
+If using LLM-assisted annotation, log for each batch:
+- annotation model name
+- Hugging Face repo id
+- revision or commit hash if available
+- prompt template version
+- codebook version
+- decoding settings
+- date of run
 
 Step 5:
 Produce descriptive Phase 2 analysis tables.
@@ -253,7 +287,40 @@ F. Descriptive correlation analysis
 - are vacuous traces common in poor translations?
 - are correct linguistic analyses rare or common?
 
-9. Immediate Practical Next Steps
+9. Reproducibility Protocol For RC
+
+If RC uses an LLM to accelerate annotation, the process should be reproducible.
+
+Minimum reproducibility requirements:
+- use a fixed Hugging Face model rather than an opaque interactive assistant
+- save the exact prompt template used for annotation
+- save the exact codebook used for annotation
+- use deterministic decoding whenever possible:
+  - temperature 0.0
+  - greedy decoding if supported
+- save the raw model response before parsing
+- save the parsed JSON label output
+- keep a manual audit subset for quality control
+
+Recommended artifacts:
+- `annotation_codebook_v1.md`
+- `annotation_prompt_v1.txt`
+- `annotated_batch_v1.jsonl`
+- `annotation_metadata_v1.json`
+
+Suggested metadata fields:
+- annotation_model_name
+- annotation_model_revision
+- annotation_prompt_version
+- annotation_codebook_version
+- annotation_date
+- annotation_temperature
+- annotation_parser_version
+
+If you use a proprietary API model for exploratory work, treat that only as pilot work.
+For the final reported method, switch to a documented, rerunnable pipeline.
+
+10. Immediate Practical Next Steps
 
 If working on the GPU machine:
 
@@ -289,6 +356,7 @@ This is intended to be run on the GPU machine, not on the local laptop.
 
 If another LLM continues this work, it should:
 - preserve contamination controls
+- preserve reproducibility constraints
 - avoid changing the annotation schema unless clearly justified
 - keep labels deterministic across batches
 - prioritize building reusable annotation tables and codebooks
@@ -303,6 +371,7 @@ If another LLM continues this work, it should:
 
 Minimum deliverables:
 - a written annotation codebook
+- a reproducibility note for the annotation method
 - a pilot annotated JSONL or CSV
 - a larger annotated subset
 - a summary table of trace-type frequencies
@@ -312,6 +381,7 @@ Minimum deliverables:
 Strong deliverables:
 - a reproducible annotation script or LLM-assisted tagging pipeline
 - clear contamination-safe protocol
+- explicit model provenance for the annotation model
 - error analysis examples showing:
   - useful traces
   - vacuous traces
