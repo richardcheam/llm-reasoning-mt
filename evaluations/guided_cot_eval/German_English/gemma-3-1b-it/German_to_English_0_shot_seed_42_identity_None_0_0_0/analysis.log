@@ -1,0 +1,19 @@
+Loading annotated data from evaluations/guided_cot_eval/German_English/gemma-3-1b-it/German_to_English_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {2: 18, 3: 41, 1: 1, 5: 1, 4: 3}
+Phenomena frequencies: {'complex_syntax': 34, 'named_entities': 53, 'long_distance_dependency': 60}
+Trace type distribution: {'neutral': 5, 'NONE': 18, 'null': 1, 'TRANSLATION_ATTEMPT': 35, 'CORRECT_LINGUISTIC_ANALYSIS': 4, 'REPETITION': 1}
+Usefulness distribution: {'neutral': 16, 'medium': 35, 'high': 13}
+Overlap distribution: {'none': 10, 'low': 1}
+
+Computing cross-tabulations...
+
+Computing quality correlations...
+Available metrics: {'metricx', 'comet', 'sentence_bleu', 'sentence_chrf'}
+Quality correlations computed for all metrics
+
+Generating comprehensive analysis report...
+
+Analysis complete. Comprehensive report saved to: evaluations/guided_cot_eval/German_English/gemma-3-1b-it/German_to_English_0_shot_seed_42_identity_None_0_0_0/COMPREHENSIVE_ANALYSIS.md

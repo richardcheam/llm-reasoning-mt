@@ -1,0 +1,19 @@
+Loading annotated data from evaluations/guided_cot_eval/English_Lithuanian/gemma-3-1b-it/English_to_Lithuanian_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {3: 48, 2: 1, 4: 11}
+Phenomena frequencies: {'complex_syntax': 51, 'named_entities': 40, 'long_distance_dependency': 59, 'ambiguity': 6, 'idiom': 6, 'figurative_language': 6}
+Trace type distribution: {'CORRECT_LINGUISTIC_ANALYSIS': 29, 'TRANSLATION_ATTEMPT': 23, 'correct_linguistic_analysis': 3, 'neutral': 3, 'NONE': 2}
+Usefulness distribution: {'medium': 42, '3': 2, 'high': 7, '2': 2, 'neutral': 1, 'Medium': 4, 'Medium (the translation is understandable but could be improved)': 1, 'High': 1}
+Overlap distribution: {'none': 36, '0': 3, 'low': 4}
+
+Computing cross-tabulations...
+
+Computing quality correlations...
+Available metrics: {'comet', 'sentence_chrf', 'metricx', 'sentence_bleu'}
+Quality correlations computed for all metrics
+
+Generating comprehensive analysis report...
+
+Analysis complete. Comprehensive report saved to: evaluations/guided_cot_eval/English_Lithuanian/gemma-3-1b-it/English_to_Lithuanian_0_shot_seed_42_identity_None_0_0_0/COMPREHENSIVE_ANALYSIS.md

@@ -1,0 +1,19 @@
+Loading annotated data from evaluations/guided_cot_eval/Turkish_Finnish/gemma-3-1b-it/Turkish_to_Finnish_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {3: 50, 2: 5, 4: 6}
+Phenomena frequencies: {'complex_syntax': 53, 'named_entities': 41, 'long_distance_dependency': 59, 'ambiguity': 7, 'idiom': 7, 'figurative_language': 7}
+Trace type distribution: {'CORRECT_LINGUISTIC_ANALYSIS': 19, 'TRANSLATION_ATTEMPT': 16, 'neutral': 11, 'correct_linguistic_analysis': 6, 'NONE': 8, 'REPETITION': 1}
+Usefulness distribution: {'medium': 37, 'high': 9, 'neutral': 5, '2': 5, '3': 1, 'Medium': 2, 'Neutral': 2}
+Overlap distribution: {'none': 12, '0': 5, 'low': 1}
+
+Computing cross-tabulations...
+
+Computing quality correlations...
+Available metrics: {'sentence_chrf', 'sentence_bleu', 'metricx', 'comet'}
+Quality correlations computed for all metrics
+
+Generating comprehensive analysis report...
+
+Analysis complete. Comprehensive report saved to: evaluations/guided_cot_eval/Turkish_Finnish/gemma-3-1b-it/Turkish_to_Finnish_0_shot_seed_42_identity_None_0_0_0/COMPREHENSIVE_ANALYSIS.md

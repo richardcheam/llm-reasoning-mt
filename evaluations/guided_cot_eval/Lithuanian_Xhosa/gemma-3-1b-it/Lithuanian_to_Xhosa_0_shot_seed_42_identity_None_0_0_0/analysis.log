@@ -1,0 +1,19 @@
+Loading annotated data from evaluations/guided_cot_eval/Lithuanian_Xhosa/gemma-3-1b-it/Lithuanian_to_Xhosa_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {3: 38, 4: 12, 5: 1}
+Phenomena frequencies: {'ambiguity': 1, 'idiom': 1, 'complex_syntax': 41, 'named_entities': 29, 'figurative_language': 1, 'long_distance_dependency': 51}
+Trace type distribution: {'NONE': 5, 'CORRECT_LINGUISTIC_ANALYSIS': 12, 'TRANSLATION_ATTEMPT': 30, 'REVISION_OF_TRANSLATION': 1, 'neutral': 1, 'REPETITION': 1, 'correct_linguistic_analysis': 1}
+Usefulness distribution: {'2': 1, 'medium': 36, 'high': 4, 'Medium': 6, 'neutral': 2, 'High': 2}
+Overlap distribution: {'0': 1, 'none': 32, 'low': 2}
+
+Computing cross-tabulations...
+
+Computing quality correlations...
+Available metrics: {'sentence_chrf', 'comet', 'sentence_bleu', 'metricx'}
+Quality correlations computed for all metrics
+
+Generating comprehensive analysis report...
+
+Analysis complete. Comprehensive report saved to: evaluations/guided_cot_eval/Lithuanian_Xhosa/gemma-3-1b-it/Lithuanian_to_Xhosa_0_shot_seed_42_identity_None_0_0_0/COMPREHENSIVE_ANALYSIS.md

@@ -1,0 +1,19 @@
+Loading annotated data from evaluations/guided_cot_eval/French_English/gemma-3-1b-it/French_to_English_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {2: 19, 3: 38, 4: 3, 5: 1, 1: 1}
+Phenomena frequencies: {'named_entities': 54, 'long_distance_dependency': 58, 'complex_syntax': 34}
+Trace type distribution: {'neutral': 12, 'NONE': 22, 'correct_linguistic_analysis': 1, 'CORRECT_LINGUISTIC_ANALYSIS': 4, 'TRANSLATION_ATTEMPT': 22, 'null': 1}
+Usefulness distribution: {'neutral': 18, 'medium': 32, 'high': 12}
+Overlap distribution: {'none': 3, 'low': 1}
+
+Computing cross-tabulations...
+
+Computing quality correlations...
+Available metrics: {'sentence_chrf', 'comet', 'sentence_bleu', 'metricx'}
+Quality correlations computed for all metrics
+
+Generating comprehensive analysis report...
+
+Analysis complete. Comprehensive report saved to: evaluations/guided_cot_eval/French_English/gemma-3-1b-it/French_to_English_0_shot_seed_42_identity_None_0_0_0/COMPREHENSIVE_ANALYSIS.md

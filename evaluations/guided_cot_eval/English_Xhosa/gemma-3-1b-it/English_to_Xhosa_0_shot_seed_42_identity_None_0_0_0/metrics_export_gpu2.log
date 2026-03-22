@@ -1,0 +1,28 @@
+Processing English_Xhosa on GPU 2
+Eval type: guided_cot_eval
+Run directory: evaluations/guided_cot_eval/English_Xhosa/gemma-3-1b-it/English_to_Xhosa_0_shot_seed_42_identity_None_0_0_0
+Started at: Sun Mar 22 06:01:27 PM CET 2026
+Computing all metrics (BLEU, chrF++, COMET, MetricX)...
+/home/richard/llm-reasoning-mt/.venv/lib/python3.12/site-packages/torchmetrics/utilities/imports.py:23: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import DistributionNotFound, get_distribution
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 39794.16it/s]
+Lightning automatically upgraded your loaded checkpoint from v1.8.3.post1 to v2.6.1. To apply the upgrade to your files permanently, run `python -m pytorch_lightning.utilities.upgrade_checkpoint ../.cache/huggingface/hub/models--Unbabel--wmt22-comet-da/snapshots/2760a223ac957f30acfb18c8aa649b01cf1d75f2/checkpoints/model.ckpt`
+Encoder model frozen.
+/home/richard/llm-reasoning-mt/.venv/lib/python3.12/site-packages/pytorch_lightning/core/saving.py:197: Found keys that are not in the model state dict but in the checkpoint: ['encoder.model.embeddings.position_ids']
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [2]
+/home/richard/llm-reasoning-mt/.venv/lib/python3.12/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+You are using the default legacy behaviour of the <class 'transformers.models.t5.tokenization_t5.T5Tokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565
+/home/richard/llm-reasoning-mt/.venv/lib/python3.12/site-packages/transformers/convert_slow_tokenizer.py:566: UserWarning: The sentencepiece tokenizer that you are converting to a fast tokenizer uses the byte fallback option which is not implemented in the fast tokenizers. In practice this means that the fast version of the tokenizer can produce unknown tokens whereas the sentencepiece version would have converted these unknown tokens into a sequence of byte tokens matching the original piece of text.
+  warnings.warn(
+`torch_dtype` is deprecated! Use `dtype` instead!
+Wrote 64 rows to evaluations/guided_cot_eval/English_Xhosa/gemma-3-1b-it/English_to_Xhosa_0_shot_seed_42_identity_None_0_0_0/sentence_metrics.jsonl
+sentence_bleu: mean=1.8892
+sentence_chrf: mean=11.2129
+comet: mean=0.3997
+metricx: mean=15.2983
+Completed at: Sun Mar 22 06:02:00 PM CET 2026
+✓ SUCCESS: guided_cot_eval/English_Xhosa

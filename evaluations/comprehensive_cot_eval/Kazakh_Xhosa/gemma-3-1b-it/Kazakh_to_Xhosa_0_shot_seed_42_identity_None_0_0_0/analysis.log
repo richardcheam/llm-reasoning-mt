@@ -1,0 +1,19 @@
+Loading annotated data from evaluations/comprehensive_cot_eval/Kazakh_Xhosa/gemma-3-1b-it/Kazakh_to_Xhosa_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {3: 45, 4: 9, 2: 2}
+Phenomena frequencies: {'named_entities': 40, 'long_distance_dependency': 55, 'complex_syntax': 37}
+Trace type distribution: {'CORRECT_LINGUISTIC_ANALYSIS': 18, 'TRANSLATION_ATTEMPT': 28, 'NONE': 7, 'correct_linguistic_analysis': 2, 'REPETITION': 1}
+Usefulness distribution: {'high': 4, 'medium': 43, 'Medium': 3, 'neutral': 6}
+Overlap distribution: {'none': 28}
+
+Computing cross-tabulations...
+
+Computing quality correlations...
+Available metrics: {'metricx', 'sentence_bleu', 'comet', 'sentence_chrf'}
+Quality correlations computed for all metrics
+
+Generating comprehensive analysis report...
+
+Analysis complete. Comprehensive report saved to: evaluations/comprehensive_cot_eval/Kazakh_Xhosa/gemma-3-1b-it/Kazakh_to_Xhosa_0_shot_seed_42_identity_None_0_0_0/COMPREHENSIVE_ANALYSIS.md

@@ -1,0 +1,19 @@
+Loading annotated data from evaluations/guided_cot_eval/English_Finnish/gemma-3-1b-it/English_to_Finnish_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {3: 52, 2: 5, 4: 6, 5: 1}
+Phenomena frequencies: {'complex_syntax': 51, 'named_entities': 43, 'long_distance_dependency': 64, 'ambiguity': 2, 'idiom': 2, 'figurative_language': 2}
+Trace type distribution: {'TRANSLATION_ATTEMPT': 35, 'CORRECT_LINGUISTIC_ANALYSIS': 18, 'NONE': 5, 'neutral': 4, 'correct_linguistic_analysis': 2}
+Usefulness distribution: {'medium': 46, '3': 1, 'high': 7, 'neutral': 5, '1': 1, 'High': 1, 'Medium': 3}
+Overlap distribution: {'none': 16, '0': 1}
+
+Computing cross-tabulations...
+
+Computing quality correlations...
+Available metrics: {'comet', 'metricx', 'sentence_chrf', 'sentence_bleu'}
+Quality correlations computed for all metrics
+
+Generating comprehensive analysis report...
+
+Analysis complete. Comprehensive report saved to: evaluations/guided_cot_eval/English_Finnish/gemma-3-1b-it/English_to_Finnish_0_shot_seed_42_identity_None_0_0_0/COMPREHENSIVE_ANALYSIS.md

@@ -1,0 +1,19 @@
+Loading annotated data from evaluations/guided_cot_eval/Lithuanian_Turkish/gemma-3-1b-it/Lithuanian_to_Turkish_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {3: 55, 2: 2, 4: 5}
+Phenomena frequencies: {'complex_syntax': 44, 'named_entities': 40, 'long_distance_dependency': 60, 'ambiguity': 2, 'idiom': 2, 'figurative_language': 2}
+Trace type distribution: {'CORRECT_LINGUISTIC_ANALYSIS': 38, 'NONE': 11, 'TRANSLATION_ATTEMPT': 7, 'neutral': 3, 'correct_linguistic_analysis': 3}
+Usefulness distribution: {'medium': 42, 'high': 8, '1': 2, 'neutral': 6, 'Neutral': 1, 'High': 2, 'Medium': 1}
+Overlap distribution: {'none': 21, '0': 2}
+
+Computing cross-tabulations...
+
+Computing quality correlations...
+Available metrics: {'comet', 'sentence_chrf', 'metricx', 'sentence_bleu'}
+Quality correlations computed for all metrics
+
+Generating comprehensive analysis report...
+
+Analysis complete. Comprehensive report saved to: evaluations/guided_cot_eval/Lithuanian_Turkish/gemma-3-1b-it/Lithuanian_to_Turkish_0_shot_seed_42_identity_None_0_0_0/COMPREHENSIVE_ANALYSIS.md
