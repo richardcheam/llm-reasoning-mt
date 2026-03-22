@@ -1,0 +1,80 @@
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+It is recommended to enable `effective_order` for sentence-level BLEU.
+/home/richard/llm-reasoning-mt/.venv/lib/python3.12/site-packages/torchmetrics/utilities/imports.py:23: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  from pkg_resources import DistributionNotFound, get_distribution
+Fetching 5 files:   0%|          | 0/5 [00:00<?, ?it/s]Fetching 5 files: 100%|██████████| 5/5 [00:00<00:00, 19204.69it/s]
+Lightning automatically upgraded your loaded checkpoint from v1.8.3.post1 to v2.6.1. To apply the upgrade to your files permanently, run `python -m pytorch_lightning.utilities.upgrade_checkpoint ../.cache/huggingface/hub/models--Unbabel--wmt22-comet-da/snapshots/2760a223ac957f30acfb18c8aa649b01cf1d75f2/checkpoints/model.ckpt`
+Encoder model frozen.
+/home/richard/llm-reasoning-mt/.venv/lib/python3.12/site-packages/pytorch_lightning/core/saving.py:197: Found keys that are not in the model state dict but in the checkpoint: ['encoder.model.embeddings.position_ids']
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+💡 Tip: For seamless cloud logging and experiment tracking, try installing [litlogger](https://pypi.org/project/litlogger/) to enable LitLogger, which logs metrics and artifacts automatically to the Lightning Experiments platform.
+💡 Tip: For seamless cloud uploads and versioning, try installing [litmodels](https://pypi.org/project/litmodels/) to enable LitModelCheckpoint, which syncs automatically with the Lightning model registry.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
+/home/richard/llm-reasoning-mt/.venv/lib/python3.12/site-packages/pytorch_lightning/utilities/_pytree.py:21: `isinstance(treespec, LeafSpec)` is deprecated, use `isinstance(treespec, TreeSpec) and treespec.is_leaf()` instead.
+Wrote 64 rows to evaluations/comprehensive_cot_eval/Lithuanian_Turkish/gemma-3-1b-it/Lithuanian_to_Turkish_0_shot_seed_42_identity_None_0_0_0/sentence_metrics.jsonl
+sentence_bleu: mean=3.8328
+sentence_chrf: mean=13.2129
+comet: mean=0.4608

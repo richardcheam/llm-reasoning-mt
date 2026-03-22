@@ -1,0 +1,21 @@
+Loading annotated data from evaluations/comprehensive_cot_eval/Lithuanian_Turkish/gemma-3-1b-it/Lithuanian_to_Turkish_0_shot_seed_42_identity_None_0_0_0/phase2_annotations.jsonl
+Loaded 64 examples
+
+Computing statistics...
+Difficulty distribution: {2: 19, 3: 32, 1: 1, 4: 7, 5: 4}
+Phenomena frequencies: {'long_distance_dependency': 54, 'complex_syntax': 33, 'named_entities': 41}
+Trace type distribution: {'neutral': 18, 'NONE': 10, 'correct_linguistic_analysis': 3, 'CORRECT_LINGUISTIC_ANALYSIS': 14, 'TRANSLATION_ATTEMPT': 17, 'HALLUCINATED_RULE': 1}
+Usefulness distribution: {'neutral': 29, 'medium': 27, 'high': 6, 'High': 1}
+Overlap distribution: {'none': 14}
+
+Computing cross-tabulations...
+Traceback (most recent call last):
+  File "/home/richard/llm-reasoning-mt/analysis/analyze_traces.py", line 463, in <module>
+    main()
+  File "/home/richard/llm-reasoning-mt/analysis/analyze_traces.py", line 286, in main
+    crosstab_type_usefulness = cross_tabulate(data, "primary_trace_type", "usefulness")
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/richard/llm-reasoning-mt/analysis/analyze_traces.py", line 151, in cross_tabulate
+    row_val = ann.get("trace_analysis", {}).get("primary_trace_type")
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'

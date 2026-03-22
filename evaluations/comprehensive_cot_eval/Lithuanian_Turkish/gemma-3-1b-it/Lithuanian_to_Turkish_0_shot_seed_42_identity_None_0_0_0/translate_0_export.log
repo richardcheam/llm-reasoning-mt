@@ -1,0 +1,15 @@
+usage: export_sentence_metrics.py [-h] --run_dir RUN_DIR
+                                  [--output_file OUTPUT_FILE]
+                                  [--metrics {bleu,chrf,comet,metricx} [{bleu,chrf,comet,metricx} ...]]
+                                  [--dataset_name_or_path DATASET_NAME_OR_PATH]
+                                  [--src SRC] [--tgt TGT]
+                                  [--model_name MODEL_NAME]
+                                  [--prompt_type PROMPT_TYPE]
+                                  [--number_of_shots NUMBER_OF_SHOTS]
+                                  [--decoding_temperature DECODING_TEMPERATURE]
+                                  [--comet_model_name_or_path COMET_MODEL_NAME_OR_PATH]
+                                  [--metricx_model_name_or_path METRICX_MODEL_NAME_OR_PATH]
+                                  [--metricx_variant {23,24}] [--metricx_qe]
+                                  [--max_input_length MAX_INPUT_LENGTH]
+                                  [--batch_size BATCH_SIZE]
+export_sentence_metrics.py: error: argument --metrics: invalid choice: 'bleu,chrf,comet' (choose from 'bleu', 'chrf', 'comet', 'metricx')
