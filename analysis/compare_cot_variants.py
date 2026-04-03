@@ -519,7 +519,7 @@ def generate_comparison_report(language_pairs: List[str], output_file: str):
         f.write(f"*Total pairs analyzed: {len(comparisons)}/24*\n")
         f.write(f"*Total examples: {generic_totals['examples'] + guided_totals['examples']} ({generic_totals['examples']} Generic + {guided_totals['examples']} Guided)*\n")
     
-    print(f"✅ Detailed comparison report saved to: {output_file}")
+    print(f"Detailed comparison report saved to: {output_file}")
     print(f"   - Analyzed {len(comparisons)} language pairs")
     print(f"   - Total examples: {generic_totals['examples'] + guided_totals['examples']}")
     print(f"   - Includes: trace distributions, quality metrics, CoT paradox analysis, interpretation guide")
