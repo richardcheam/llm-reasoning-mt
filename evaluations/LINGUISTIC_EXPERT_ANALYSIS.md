@@ -3,7 +3,7 @@
 **Analysis Date**: 2026-03-22  
 **Model**: google/gemma-3-1b-it (1B parameters)  
 **Dataset**: 24 language pairs, 64 examples each (3,072 total translations)  
-**Analyst**: Computational Linguistics Expert
+**Analyst**: LLM prompted as Computational Linguistics Expert 
 
 ---
 
