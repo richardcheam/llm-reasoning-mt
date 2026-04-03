@@ -6,3 +6,11 @@
 runs/
 __pycache__/
 *.pyc
+
+# macOS Finder / filesystem metadata
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
