@@ -9,6 +9,7 @@ __pycache__/
 *.pyc
 download_flores_manual.sh
 download_flores_python.py
+WORK_GUIDELINE.md
 
 # macOS Finder / filesystem metadata
 .DS_Store
