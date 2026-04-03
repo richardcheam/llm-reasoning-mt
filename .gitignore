@@ -3,6 +3,7 @@
 .uv-cache/
 .tools/
 .sacrebleu/
+.sacrebleu_cache/
 runs/
 __pycache__/
 *.pyc
